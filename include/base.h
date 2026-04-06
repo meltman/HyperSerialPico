@@ -36,6 +36,10 @@ class Base
 	LED_DRIVER* ledStrip1 = nullptr;
 	// NeoPixelBusLibrary second object
 	LED_DRIVER2* ledStrip2 = nullptr;
+	// NeoPixelBusLibrary third object (4-segment support)
+	LED_DRIVER* ledStrip3 = nullptr;
+	// NeoPixelBusLibrary fourth object (4-segment support)
+	LED_DRIVER* ledStrip4 = nullptr;
 	// frame is set and ready to render
 	bool readyToRender = false;
 
@@ -76,28 +80,47 @@ class Base
 				ledStrip1 = nullptr;
 			}
 
-			if (ledStrip2 != nullptr)
+		if (ledStrip2 != nullptr)
+		{
+			delete ledStrip2;
+			ledStrip2 = nullptr;
+		}
+
+		if (ledStrip3 != nullptr)
+		{
+			delete ledStrip3;
+			ledStrip3 = nullptr;
+		}
+
+		if (ledStrip4 != nullptr)
+		{
+			delete ledStrip4;
+			ledStrip4 = nullptr;
+		}
+
+		ledsNumber = count;
+
+		#if defined(SECOND_SEGMENT_START_INDEX)
+			if (ledsNumber > SECOND_SEGMENT_START_INDEX)
 			{
-				delete ledStrip2;
-				ledStrip2 = nullptr;
-			}
+				#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
+					ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX, DATA_PIN);
+					ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX, DATA_PIN);
 
-			ledsNumber = count;
-
-			#if defined(SECOND_SEGMENT_START_INDEX)
-				if (ledsNumber > SECOND_SEGMENT_START_INDEX)
-				{
-					#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
-						ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX, DATA_PIN);
-						ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX, DATA_PIN);
-					#else
-						ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
-						ledStrip1->Begin(CLOCK_PIN, 12, DATA_PIN, 15);
-						ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
-						ledStrip2->Begin(SECOND_SEGMENT_CLOCK_PIN, 12, SECOND_SEGMENT_DATA_PIN, 15);
+					#if defined(THIRD_SEGMENT_START_INDEX) && defined(FOURTH_SEGMENT_START_INDEX)
+						if (ledsNumber > THIRD_SEGMENT_START_INDEX)
+							ledStrip3 = new LED_DRIVER(FOURTH_SEGMENT_START_INDEX - THIRD_SEGMENT_START_INDEX, DATA_PIN);
+						if (ledsNumber > FOURTH_SEGMENT_START_INDEX)
+							ledStrip4 = new LED_DRIVER(ledsNumber - FOURTH_SEGMENT_START_INDEX, DATA_PIN);
 					#endif
-				}
-			#endif
+				#else
+					ledStrip1 = new LED_DRIVER(SECOND_SEGMENT_START_INDEX);
+					ledStrip1->Begin(CLOCK_PIN, 12, DATA_PIN, 15);
+					ledStrip2 = new LED_DRIVER2(ledsNumber - SECOND_SEGMENT_START_INDEX);
+					ledStrip2->Begin(SECOND_SEGMENT_CLOCK_PIN, 12, SECOND_SEGMENT_DATA_PIN, 15);
+				#endif
+			}
+		#endif
 
 			if (ledStrip1 == nullptr)
 			{
@@ -149,20 +172,53 @@ class Base
 		{
 			if (pix < ledsNumber)
 			{
-				#if defined(SECOND_SEGMENT_START_INDEX)
-					if (pix < SECOND_SEGMENT_START_INDEX)
-						ledStrip1->SetPixel(pix, inputColor);
-					else
+			#if defined(SECOND_SEGMENT_START_INDEX)
+				if (pix < SECOND_SEGMENT_START_INDEX)
+					ledStrip1->SetPixel(pix, inputColor);
+				#if defined(THIRD_SEGMENT_START_INDEX) && defined(FOURTH_SEGMENT_START_INDEX)
+				else if (pix < THIRD_SEGMENT_START_INDEX)
+				{
+					#if defined(SECOND_SEGMENT_REVERSED)
+						ledStrip2->SetPixel(THIRD_SEGMENT_START_INDEX - pix - 1, inputColor);
+					#else
+						ledStrip2->SetPixel(pix - SECOND_SEGMENT_START_INDEX, inputColor);
+					#endif
+				}
+				else if (pix < FOURTH_SEGMENT_START_INDEX)
+				{
+					if (ledStrip3 != nullptr)
 					{
-						#if defined(SECOND_SEGMENT_REVERSED)
-							ledStrip2->SetPixel(ledsNumber - pix - 1, inputColor);
+						#if defined(THIRD_SEGMENT_REVERSED)
+							ledStrip3->SetPixel(FOURTH_SEGMENT_START_INDEX - pix - 1, inputColor);
 						#else
-							ledStrip2->SetPixel(pix - SECOND_SEGMENT_START_INDEX, inputColor);
+							ledStrip3->SetPixel(pix - THIRD_SEGMENT_START_INDEX, inputColor);
 						#endif
 					}
+				}
+				else
+				{
+					if (ledStrip4 != nullptr)
+					{
+						#if defined(FOURTH_SEGMENT_REVERSED)
+							ledStrip4->SetPixel(ledsNumber - pix - 1, inputColor);
+						#else
+							ledStrip4->SetPixel(pix - FOURTH_SEGMENT_START_INDEX, inputColor);
+						#endif
+					}
+				}
 				#else
-					ledStrip1->SetPixel(pix, inputColor);
+				else
+				{
+					#if defined(SECOND_SEGMENT_REVERSED)
+						ledStrip2->SetPixel(ledsNumber - pix - 1, inputColor);
+					#else
+						ledStrip2->SetPixel(pix - SECOND_SEGMENT_START_INDEX, inputColor);
+					#endif
+				}
 				#endif
+			#else
+				ledStrip1->SetPixel(pix, inputColor);
+			#endif
 			}
 
 			return (pix + 1 < ledsNumber);
