@@ -37,13 +37,13 @@ class Base
                         ledStrip1->Begin(CLOCK_PIN, 12, DATA_PIN, 15);
                         
                         ledStrip2 = new LED_DRIVER2(THIRD_SEGMENT_START_INDEX - SECOND_SEGMENT_START_INDEX);
-                        ledStrip2->Begin(SECOND_SEGMENT_CLOCK_PIN, 12, SECOND_SEGMENT_DATA_PIN, 15);
+                        ledStrip2->Begin(SECOND_SEGMENT_CLOCK_PIN, 12, SECOND_SEGMENT_DATA_PIN, 16);
                         
                         ledStrip3 = new LED_DRIVER3(FOURTH_SEGMENT_START_INDEX - THIRD_SEGMENT_START_INDEX);
-                        ledStrip3->Begin(THIRD_SEGMENT_CLOCK_PIN, 12, THIRD_SEGMENT_DATA_PIN, 15);
+                        ledStrip3->Begin(THIRD_SEGMENT_CLOCK_PIN, 12, THIRD_SEGMENT_DATA_PIN, 17);
                         
                         ledStrip4 = new LED_DRIVER4(ledsNumber - FOURTH_SEGMENT_START_INDEX);
-                        ledStrip4->Begin(FOURTH_SEGMENT_CLOCK_PIN, 12, FOURTH_SEGMENT_DATA_PIN, 15);
+                        ledStrip4->Begin(FOURTH_SEGMENT_CLOCK_PIN, 12, FOURTH_SEGMENT_DATA_PIN, 18);
                     #endif
                 }
             #endif
