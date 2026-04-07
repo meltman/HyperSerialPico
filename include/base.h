@@ -110,7 +110,7 @@ class Base
 
 			ledsNumber = count;
 
-			#if defined(SECOND_SEGMENT_START_INDEX)
+			#if defined(FOURTH_SEGMENT_START_INDEX)
 				if (ledsNumber > SECOND_SEGMENT_START_INDEX)
 				{
 					#if defined(NEOPIXEL_RGBW) || defined(NEOPIXEL_RGB)
