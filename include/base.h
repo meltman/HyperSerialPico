@@ -12,8 +12,44 @@ class Base
     LED_DRIVER4* ledStrip4 = nullptr;
     bool readyToRender = false;
 
-    public:
-        // ... (Public members remain the same)
+	public:
+		// static data buffer for the loop
+		volatile uint8_t buffer[MAX_BUFFER + 1] = {0};
+		// handle to tasks
+		TaskHandle_t processDataHandle = nullptr;
+		TaskHandle_t processSerialHandle = nullptr;
+		// semaphore to synchronize them
+		semaphore_t serialSemaphore;
+		semaphore_t receiverSemaphore;
+		// current queue position
+		volatile int queueCurrent = 0;
+		// queue end position
+		volatile int queueEnd = 0;
+
+		inline int getLedsNumber()
+		{
+			return ledsNumber;
+		}
+
+		inline LED_DRIVER* getLedStrip1()
+		{
+			return ledStrip1;
+		}
+
+		inline LED_DRIVER2* getLedStrip2()
+		{
+			return ledStrip2;
+		}
+
+		inline LED_DRIVER3* getLedStrip3()
+		{
+			return ledStrip3;
+		}
+
+		inline LED_DRIVER4* getLedStrip4()
+		{
+			return ledStrip4;
+		}
 
         void initLedStrip(int count)
         {
