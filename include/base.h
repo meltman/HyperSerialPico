@@ -99,13 +99,13 @@ class Base
 			if (ledStrip3 != nullptr)
 			{
 				delete ledStrip3;
-				ledStrip4 = nullptr;
+				ledStrip3 = nullptr;
 			}
 
-			if (ledStrip2 != nullptr)
+			if (ledStrip4 != nullptr)
 			{
 				delete ledStrip4;
-				ledStrip2 = nullptr;
+				ledStrip4 = nullptr;
 			}
 
 			ledsNumber = count;
